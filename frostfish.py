@@ -112,5 +112,10 @@ def post_request():
     return 'Заявка отправлена'
 
 
+@app.route('/ping', methods = ['POST', 'GET'])
+def ping():
+    return 'All is OK'
+
+
 if __name__ == '__main__':
     app.run(use_reloader=True)
