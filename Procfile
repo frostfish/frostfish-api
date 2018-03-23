@@ -1,1 +1,1 @@
-web: gunicorn frostfish:app --log-file=-
+web: gunicorn frostfish:app -b 0.0.0.0:443 --log-file=-
