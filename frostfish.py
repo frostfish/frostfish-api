@@ -115,6 +115,6 @@ def post_request():
     return 'Заявка отправлена'
 
 
-app.wsgi_app = ProxyFix(app.wsgi_app)
+#app.wsgi_app = ProxyFix(app.wsgi_app)
 if __name__ == '__main__':
-    app.run()
+    app.run(use_reloader=True)
