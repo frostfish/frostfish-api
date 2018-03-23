@@ -16,7 +16,7 @@ ZAKAZ_MAIL = 'zakaz@frost-fish.ru'
 
 def send_mail(toaddr, subject, html):
     fromaddr = 'noreply@frost-fish.ru'
-    password = '<password>'
+    password = os.environ['MAIL_PASSWORD']
 
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject
