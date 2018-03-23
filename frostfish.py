@@ -2,11 +2,8 @@
 # Sample run: gunicorn frost-fish:app -b 0.0.0.0:5000 -D
 
 from flask import Flask, request, jsonify
-from werkzeug.contrib.fixers import ProxyFix
-from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
 
 import json
 
@@ -115,6 +112,5 @@ def post_request():
     return 'Заявка отправлена'
 
 
-#app.wsgi_app = ProxyFix(app.wsgi_app)
 if __name__ == '__main__':
     app.run(use_reloader=True)
