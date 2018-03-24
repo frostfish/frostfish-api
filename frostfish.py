@@ -2,8 +2,10 @@
 # Sample run: gunicorn frost-fish:app -b 0.0.0.0:5000 -D
 
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 import json
 import os
