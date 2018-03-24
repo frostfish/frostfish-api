@@ -115,7 +115,7 @@ def post_request():
 
 @app.route('/ping', methods = ['POST', 'GET'])
 def ping():
-    return 'All is OK' + os.environ['MAIL_PASSWORD']
+    return 'All is OK'
 
 
 if __name__ == '__main__':
