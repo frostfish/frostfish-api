@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Sample run: gunicorn frost-fish:app -b 0.0.0.0:5000 -D
+# coding: utf-8
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -121,5 +121,4 @@ def ping():
 
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run()
