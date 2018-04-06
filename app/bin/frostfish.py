@@ -1,43 +1,44 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-
-app = Flask(__name__)
-CORS(app)
-
+import flask
+import flask_cors
 import json
 import os
-
 import smtplib
+
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+
+app = flask.Flask(__name__)
+flask_cors.CORS(app)
+FROM_MAIL = 'noreply@frost-fish.ru'
 ZAKAZ_MAIL = 'zakaz@frost-fish.ru'
+PASSWORD = os.environ['MAIL_PASSWORD']
+
+def get_smtp():
+    if not hasattr(flask.g, 'smtp'):
+        flask.g.smtp = smtplib.SMTP('smtp.yandex.ru:587')
+        flask.g.smtp.ehlo()
+        flask.g.smtp.starttls()
+        flask.g.smtp.login(FROM_MAIL, PASSWORD)
+
+    return flask.g.smtp
 
 def send_mail(toaddr, subject, html):
-    fromaddr = 'noreply@frost-fish.ru'
-    password = os.environ['MAIL_PASSWORD']
-
     msg = MIMEMultipart('alternative')
     msg['Subject'] = subject
-    msg['From'] = fromaddr
+    msg['From'] = FROM_MAIL
     msg['To'] = toaddr
-
     msg.attach(MIMEText(html, 'html'))
 
-    server = smtplib.SMTP('smtp.yandex.ru:587')
-    server.ehlo()
-    server.starttls()
-    server.login(fromaddr, password)
-    server.sendmail(fromaddr, toaddr, msg.as_string())
-    server.quit()
+    get_smtp().sendmail(FROM_MAIL, toaddr, msg.as_string())
 
 
 @app.route('/post-order', methods = ['POST', 'GET'])
 def post_order():
-    order_data = json.loads(request.get_data().decode("utf-8"))
+    order_data = json.loads(flask.request.get_data().decode("utf-8"))
 
     print(order_data)
     html = '''\
@@ -78,11 +79,14 @@ def post_order():
         recipients.append(order_data['userdata']['mail'])
 
     for mail in recipients:
-        send_mail(
-            mail,
-            'Новый заказ на сайте frost-fish.ru',
-            html
-        )
+        try:
+            send_mail(
+                mail,
+                'Новый заказ на сайте frost-fish.ru',
+                html
+            )
+        except Exception as e:
+            print('Error while sending mail:\n{}'.format(e))
 
     return json.dumps({
         'errors': None,
@@ -92,7 +96,7 @@ def post_order():
 
 @app.route('/post-request', methods = ['POST', 'GET'])
 def post_request():
-    data = request.form.to_dict()
+    data = flask.request.form.to_dict()
     if not 'comment' in data:
         data['comment'] = ''
 
