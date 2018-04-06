@@ -36,6 +36,7 @@ def send_mail(toaddr, subject, html):
     for restart in [False, True]:
         try:
             get_smtp(restart).sendmail(FROM_MAIL, toaddr, msg.as_string())
+            return
         except Exception as e:
             print("Error while sending mail to {}:\n\n{}".format(toaddr, e))
 
