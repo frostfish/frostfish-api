@@ -17,8 +17,8 @@ FROM_MAIL = 'noreply@frost-fish.ru'
 ZAKAZ_MAIL = 'zakaz@frost-fish.ru'
 PASSWORD = os.environ['MAIL_PASSWORD']
 
-def get_smtp():
-    if not hasattr(flask.g, 'smtp'):
+def get_smtp(restart=False):
+    if not hasattr(flask.g, 'smtp') or restart:
         flask.g.smtp = smtplib.SMTP('smtp.yandex.ru:587')
         flask.g.smtp.ehlo()
         flask.g.smtp.starttls()
@@ -33,7 +33,11 @@ def send_mail(toaddr, subject, html):
     msg['To'] = toaddr
     msg.attach(MIMEText(html, 'html'))
 
-    get_smtp().sendmail(FROM_MAIL, toaddr, msg.as_string())
+    for restart in [False, True]:
+        try:
+            get_smtp(restart).sendmail(FROM_MAIL, toaddr, msg.as_string())
+        except Exception as e:
+            print("Error while sending mail to {}:\n\n{}".format(toaddr, e))
 
 
 @app.route('/post-order', methods = ['POST', 'GET'])
@@ -79,15 +83,12 @@ def post_order():
         recipients.append(order_data['userdata']['mail'])
 
     for mail in recipients:
-        try:
-            send_mail(
-                mail,
-                'Новый заказ на сайте frost-fish.ru',
-                html
-            )
-        except Exception as e:
-            print('Error while sending mail:\n{}'.format(e))
-
+        send_mail(
+            mail,
+            'Новый заказ на сайте frost-fish.ru',
+            html
+        )
+      
     return json.dumps({
         'errors': None,
         'message': 'Заказ успешно оформлен'
